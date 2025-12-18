@@ -1,41 +1,42 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react"
-import type { IProduct } from "@/app/lib/models/product"
-import { getImageUrl } from "@/app/lib/utils"
-import { WishlistButton } from "@/components/wishlist-button"
-import { useCart } from "@/components/context/CartContext"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/app/hooks/use-toast"
+import type React from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
+import type { IProduct } from "@/app/lib/models/product";
+import { getImageUrl } from "@/app/lib/utils";
+import { WishlistButton } from "@/components/wishlist-button";
+import { useCart } from "@/components/context/CartContext";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/app/hooks/use-toast";
 
 type ProductData = {
-  _id: string
-  slug: string
-  name: string
-  description: string
-  price: number
-  total_price?: number
-  oldPrice: number
-  discount: string
-  rating: number
-  images: string[]
-  category_id: string
-  brand_id: string
-  variations: any[]
-  createdAt: string
-  updatedAt: string
-}
+  _id: string;
+  slug: string;
+  name: string;
+  description: string;
+  price: number;
+  total_price?: number;
+  oldPrice: number;
+  discount: string;
+  rating: number;
+  images: string[];
+  category_id: string;
+  brand_id: string;
+  variations: any[];
+  createdAt: string;
+  updatedAt: string;
+};
 
 const fallbackProducts: ProductData[] = [
   {
     _id: "fallback1",
     slug: "pastal-cream-color-sequence-thread-embroidery-lehenga",
     name: "Pastal Cream color Sequence Thread Embroidery Lehenga",
-    description: "Beautiful pastal cream lehenga with intricate sequence and thread embroidery work",
+    description:
+      "Beautiful pastal cream lehenga with intricate sequence and thread embroidery work",
     images: ["/shopbycategory1.webp"],
     price: 4299,
     total_price: 4299,
@@ -52,7 +53,8 @@ const fallbackProducts: ProductData[] = [
     _id: "fallback2",
     slug: "purple-sequence-thread-embroidery-lehenga",
     name: "Purple Sequence Thread Embroidery Lehenga",
-    description: "Elegant purple lehenga with beautiful sequence and thread embroidery",
+    description:
+      "Elegant purple lehenga with beautiful sequence and thread embroidery",
     images: ["/shopbycategory2.webp"],
     price: 4299,
     total_price: 4299,
@@ -99,99 +101,106 @@ const fallbackProducts: ProductData[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
-]
+];
 
 const roundTotalPrice = (price: number): number => {
-  if (!price) return 0
+  if (!price) return 0;
 
   if (price % 1 === 0) {
-    return Math.floor(price)
+    return Math.floor(price);
   }
 
-  return Math.ceil(price)
-}
+  return Math.ceil(price);
+};
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<(IProduct | ProductData)[]>(fallbackProducts)
-  const [sortBy, setSortBy] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [columns, setColumns] = useState(4)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [products, setProducts] =
+    useState<(IProduct | ProductData)[]>(fallbackProducts);
+  const [sortBy, setSortBy] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [columns, setColumns] = useState(4);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState<{
-    [key: string]: boolean
-  }>({})
-  const itemsPerPage = 8
+    [key: string]: boolean;
+  }>({});
+  const itemsPerPage = 8;
 
-  const { addToCart } = useCart()
-  const { toast } = useToast()
+  const { addToCart } = useCart();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchProducts = async () => {
-      setError(null)
+      setError(null);
       try {
-        const res = await fetch(`/api/products`)
-        if (!res.ok) throw new Error(`Failed to fetch products: ${res.status}`)
+        const res = await fetch(`/api/products`);
+        if (!res.ok) throw new Error(`Failed to fetch products: ${res.status}`);
 
-        const data = await res.json()
+        const data = await res.json();
         if (Array.isArray(data.products)) {
-          setProducts(data.products)
+          setProducts(data.products);
         } else {
-          setError("Invalid data structure")
-          setProducts(fallbackProducts)
+          setError("Invalid data structure");
+          setProducts(fallbackProducts);
         }
       } catch (err) {
-        console.error(err)
-        setError("Failed to load products. Using fallback data.")
-        setProducts(fallbackProducts)
+        console.error(err);
+        setError("Failed to load products. Using fallback data.");
+        setProducts(fallbackProducts);
       }
-    }
+    };
 
-    fetchProducts()
-  }, [])
+    fetchProducts();
+  }, []);
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value
-    setSortBy(value)
+    const value = e.target.value;
+    setSortBy(value);
 
     if (value === "lowToHigh") {
       const sortedProducts = [...products].sort((a, b) => {
-        const priceA = a.total_price || a.price
-        const priceB = b.total_price || b.price
-        return priceA - priceB
-      })
-      setProducts(sortedProducts)
+        const priceA = a.total_price || a.price;
+        const priceB = b.total_price || b.price;
+        return priceA - priceB;
+      });
+      setProducts(sortedProducts);
     } else if (value === "highToLow") {
       const sortedProducts = [...products].sort((a, b) => {
-        const priceA = a.total_price || a.price
-        const priceB = b.total_price || b.price
-        return priceB - priceA
-      })
-      setProducts(sortedProducts)
+        const priceA = a.total_price || a.price;
+        const priceB = b.total_price || b.price;
+        return priceB - priceA;
+      });
+      setProducts(sortedProducts);
     }
-  }
+  };
 
-  const handleAddToCart = async (e: React.MouseEvent, product: IProduct | ProductData) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleAddToCart = async (
+    e: React.MouseEvent,
+    product: IProduct | ProductData
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-    const defaultVariation = product.variations && product.variations.length > 0 ? product.variations[0] : null
-    const currentStock = defaultVariation?.stock || 0
+    const defaultVariation =
+      product.variations && product.variations.length > 0
+        ? product.variations[0]
+        : null;
+    const currentStock = defaultVariation?.stock || 0;
 
     if (currentStock <= 0) {
       toast({
         title: "Out of Stock",
         description: "This product is currently out of stock",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsAddingToCart((prev) => ({ ...prev, [String(product._id)]: true }))
+    setIsAddingToCart((prev) => ({ ...prev, [String(product._id)]: true }));
 
     try {
-      const selectedSize = defaultVariation?.size || "N/A"
-      const selectedColor = defaultVariation?.color || "N/A"
-      const priceModifier = defaultVariation?.price_modifier || 0
+      const selectedSize = defaultVariation?.size || "N/A";
+      const selectedColor = defaultVariation?.color || "N/A";
+      const priceModifier = defaultVariation?.price_modifier || 0;
 
       const productForCart = {
         _id: String(product._id),
@@ -206,69 +215,80 @@ export default function ProductsPage() {
         selectedSize,
         selectedColor,
         stock: currentStock,
-      }
+      };
 
-      await addToCart(productForCart)
+      await addToCart(productForCart);
 
       toast({
         title: "Added to cart!",
         description: `${product.name} has been added to your cart`,
-      })
+      });
     } catch (error) {
-      console.error("Error adding to cart:", error)
+      console.error("Error adding to cart:", error);
       toast({
         title: "Error",
         description: "Failed to add product to cart. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsAddingToCart((prev) => ({ ...prev, [String(product._id)]: false }))
+      setIsAddingToCart((prev) => ({ ...prev, [String(product._id)]: false }));
     }
-  }
+  };
 
-  const displayProducts = products.length > 0 ? products : fallbackProducts
+  const displayProducts = products.length > 0 ? products : fallbackProducts;
 
-  const totalPages = Math.ceil(displayProducts.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const currentProducts = displayProducts.slice(startIndex, endIndex)
+  const totalPages = Math.ceil(displayProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProducts = displayProducts.slice(startIndex, endIndex);
 
   const goToPage = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const goToPrevious = () => {
     if (currentPage > 1) {
-      goToPage(currentPage - 1)
+      goToPage(currentPage - 1);
     }
-  }
+  };
 
   const goToNext = () => {
     if (currentPage < totalPages) {
-      goToPage(currentPage + 1)
+      goToPage(currentPage + 1);
     }
-  }
+  };
 
   useEffect(() => {
-    setCurrentPage(1)
-  }, [sortBy])
+    setCurrentPage(1);
+  }, [sortBy]);
 
-  const imageAspectRatioClass = columns === 1 ? "aspect-[3/4]" : "aspect-square"
-  const imagePlaceholderHeight = columns === 1 ? 800 : 600
-  const imagePlaceholderWidth = 600
+  const imageAspectRatioClass =
+    columns === 1 ? "aspect-[3/4]" : "aspect-square";
+  const imagePlaceholderHeight = columns === 1 ? 800 : 600;
+  const imagePlaceholderWidth = 600;
 
   const imageContainerHeight =
-    columns === 1 ? "h-[400px] sm:h-[500px] md:h-[600px]" : "h-[250px] sm:h-[300px] md:h-[400px]"
+    columns === 1
+      ? "h-[400px] sm:h-[500px] md:h-[600px]"
+      : "h-[250px] sm:h-[300px] md:h-[400px]";
 
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="text-center py-6 md:py-10 px-4">
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black">All Collections</h1>
-        <p className="text-sm md:text-base text-gray-600 mt-2">Hot Selling Designer Lehenga with Premium Quality</p>
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black">
+          All Collections
+        </h1>
+        <p className="text-sm md:text-base text-gray-600 mt-2">
+          Hot Selling Designer Lehenga with Premium Quality
+        </p>
       </div>
 
-      <div className={`w-full ${columns > 1 ? "max-w-7xl mx-auto px-3 md:px-4" : "px-3 md:px-4"}`}>
+      <div
+        className={`w-full ${
+          columns > 1 ? "max-w-7xl mx-auto px-3 md:px-4" : "px-3 md:px-4"
+        }`}
+      >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 md:mb-6 gap-3 md:gap-4">
           <div className="bg-white px-3 md:px-4 py-2 rounded shadow text-black w-full sm:w-auto text-center text-sm md:text-base">
             Total Product Count: {displayProducts.length}
@@ -312,33 +332,32 @@ export default function ProductsPage() {
             columns === 1
               ? "grid-cols-1"
               : columns === 2
-                ? "grid-cols-1 sm:grid-cols-2"
-                : columns === 3
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                  : "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              ? "grid-cols-1 sm:grid-cols-2"
+              : columns === 3
+              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              : "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           }`}
         >
           {currentProducts.map((product) => (
             <div
               key={String(product._id)}
-              className={`bg-white rounded shadow hover:shadow-lg transition text-black group ${
+              className={` rounded-xl duration-300 text-black group ${
                 columns === 1 ? "max-w-xl mx-auto" : ""
               }`}
             >
-              <div className="relative overflow-hidden">
+              <div className="relative bg-white shadow hover:shadow-md transition-shadow">
                 <Link href={`/products/${product.slug}`}>
-                  <div className={`relative w-full ${imageContainerHeight}`}>
+                  <div className="relative w-full bg-white shadow hover:shadow-md transition-shadow">
                     <Image
                       src={getImageUrl(product.images[0] || "")}
                       alt={product.name}
-                      fill
-                      className="rounded-t object-cover group-hover:scale-105 transition-transform duration-300"
+                      width={600}
+                      height={800}
+                     className="w-full h-auto rounded-t object-contain transition-transform duration-300 group-hover:scale-105"
                       priority
                       onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        target.src = `/placeholder.svg?height=${imagePlaceholderHeight}&width=${imagePlaceholderWidth}&query=${encodeURIComponent(
-                          product.name,
-                        )}`
+                        const target = e.target as HTMLImageElement;
+                        target.src = `/placeholder.svg?height=800&width=600`;
                       }}
                     />
                   </div>
@@ -362,9 +381,11 @@ export default function ProductsPage() {
                 <div className="absolute top-12 sm:top-14 right-2 z-10">
                   {(() => {
                     const defaultVariation =
-                      product.variations && product.variations.length > 0 ? product.variations[0] : null
-                    const currentStock = defaultVariation?.stock || 0
-                    const isOutOfStock = currentStock <= 0
+                      product.variations && product.variations.length > 0
+                        ? product.variations[0]
+                        : null;
+                    const currentStock = defaultVariation?.stock || 0;
+                    const isOutOfStock = currentStock <= 0;
 
                     return (
                       <Button
@@ -376,19 +397,27 @@ export default function ProductsPage() {
                             : "bg-gray-100 hover:bg-white"
                         }`}
                         onClick={(e) => {
-                          e.preventDefault()
-                          handleAddToCart(e, product)
+                          e.preventDefault();
+                          handleAddToCart(e, product);
                         }}
-                        disabled={isAddingToCart[String(product._id)] || isOutOfStock}
+                        disabled={
+                          isAddingToCart[String(product._id)] || isOutOfStock
+                        }
                       >
                         {isAddingToCart[String(product._id)] ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-800"></div>
                         ) : (
-                          <ShoppingBag className={`w-4 h-4 ${isOutOfStock ? "text-gray-500" : ""}`} />
+                          <ShoppingBag
+                            className={`w-4 h-4 ${
+                              isOutOfStock ? "text-gray-500" : ""
+                            }`}
+                          />
                         )}
-                        <span className="sr-only">{isOutOfStock ? "Out of Stock" : "Add to Cart"}</span>
+                        <span className="sr-only">
+                          {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                        </span>
                       </Button>
-                    )
+                    );
                   })()}
                 </div>
                 {product.discount && (
@@ -399,22 +428,30 @@ export default function ProductsPage() {
               </div>
 
               <Link href={`/products/${product.slug}`}>
-                <div className="p-3 md:p-4">
+                <div className="p-3 bg-white rounded shadow hover:shadow-md transition-shadow">
                   <div className="flex items-center mb-2">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <svg
                         key={i}
-                        className={`w-3 h-3 sm:w-4 sm:h-4 ${i < product.rating ? "text-yellow-400" : "text-gray-300"}`}
+                        className={`w-3 h-3 sm:w-4 sm:h-4 ${
+                          i < product.rating
+                            ? "text-yellow-400"
+                            : "text-gray-300"
+                        }`}
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.955a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.955c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.955a1 1 0 00-.364-1.118L2.073 9.382c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.955z" />
                       </svg>
                     ))}
-                    <span className="ml-1 text-xs sm:text-sm text-gray-600">({product.rating})</span>
+                    <span className="ml-1 text-xs sm:text-sm text-gray-600">
+                      ({product.rating})
+                    </span>
                   </div>
                   <h2 className="text-xs sm:text-sm font-semibold hover:text-blue-600 transition-colors cursor-pointer line-clamp-2">
-                    {product.name.length > 50 ? product.name.slice(0, 50) + "..." : product.name}
+                    {product.name.length > 50
+                      ? product.name.slice(0, 50) + "..."
+                      : product.name}
                   </h2>
                   <div className="flex items-center gap-2 mt-2">
                     {product.oldPrice && (
@@ -423,7 +460,10 @@ export default function ProductsPage() {
                       </span>
                     )}
                     <span className="text-red-600 font-bold text-xs sm:text-sm">
-                      Rs. {roundTotalPrice(product.total_price || product.price).toFixed(2)}
+                      Rs.{" "}
+                      {roundTotalPrice(
+                        product.total_price || product.price
+                      ).toFixed(2)}
                     </span>
                   </div>
 
@@ -432,8 +472,9 @@ export default function ProductsPage() {
                       className={`text-xs font-medium ${
                         product.variations && product.variations.length > 0
                           ? product.variations.reduce(
-                              (total: number, variation: any) => total + (variation.stock || 0),
-                              0,
+                              (total: number, variation: any) =>
+                                total + (variation.stock || 0),
+                              0
                             ) <= 0
                             ? "text-gray-600"
                             : "text-gray-600"
@@ -443,10 +484,13 @@ export default function ProductsPage() {
                       {product.variations && product.variations.length > 0
                         ? (() => {
                             const totalStock = product.variations.reduce(
-                              (total: number, variation: any) => total + (variation.stock || 0),
-                              0,
-                            )
-                            return totalStock <= 0 ? "Out of Stock" : `${totalStock} items in stock`
+                              (total: number, variation: any) =>
+                                total + (variation.stock || 0),
+                              0
+                            );
+                            return totalStock <= 0
+                              ? "Out of Stock"
+                              : `${totalStock} items in stock`;
                           })()
                         : "In Stock"}
                     </span>
@@ -469,19 +513,21 @@ export default function ProductsPage() {
             </button>
 
             <div className="flex gap-2 flex-wrap justify-center">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => goToPage(page)}
-                  className={`px-3 md:px-4 py-2 text-sm font-medium rounded-lg ${
-                    currentPage === page
-                      ? "text-white bg-teal-700 border border-teal-600"
-                      : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => goToPage(page)}
+                    className={`px-3 md:px-4 py-2 text-sm font-medium rounded-lg ${
+                      currentPage === page
+                        ? "text-white bg-teal-700 border border-teal-600"
+                        : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
             </div>
 
             <button
@@ -498,5 +544,5 @@ export default function ProductsPage() {
 
       <div className="h-10" />
     </div>
-  )
+  );
 }

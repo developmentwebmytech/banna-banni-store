@@ -1,42 +1,43 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Star, RefreshCw, ShoppingBag } from "lucide-react"
-import type { IProduct } from "@/app/lib/models/product"
-import { getImageUrl } from "@/app/lib/utils"
-import { WishlistButton } from "@/components/wishlist-button"
-import { useParams } from "next/navigation"
-import { useCart } from "@/components/context/CartContext"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/app/hooks/use-toast"
+import type React from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Star, RefreshCw, ShoppingBag } from "lucide-react";
+import type { IProduct } from "@/app/lib/models/product";
+import { getImageUrl } from "@/app/lib/utils";
+import { WishlistButton } from "@/components/wishlist-button";
+import { useParams } from "next/navigation";
+import { useCart } from "@/components/context/CartContext";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/app/hooks/use-toast";
 
 type ProductData = {
-  _id: string
-  name: string
-  description: string
-  price: number
-  total_price: number
-  oldPrice?: number
-  discount?: string
-  rating?: number
-  images: string[]
-  category_id: string
-  brand_id?: string
-  variations?: any[]
-  slug: string
-  createdAt: string
-  updatedAt: string
-}
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  total_price: number;
+  oldPrice?: number;
+  discount?: string;
+  rating?: number;
+  images: string[];
+  category_id: string;
+  brand_id?: string;
+  variations?: any[];
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 const fallbackProducts: ProductData[] = [
   {
     _id: "fallback1",
     slug: "pastal-cream-lehenga",
     name: "Pastal Cream color Sequence Thread Embroidery Lehenga",
-    description: "Beautiful pastal cream lehenga with intricate sequence and thread embroidery work",
+    description:
+      "Beautiful pastal cream lehenga with intricate sequence and thread embroidery work",
     images: ["/shopbycategory1.webp"],
     price: 4299,
     total_price: 5000,
@@ -53,7 +54,8 @@ const fallbackProducts: ProductData[] = [
     _id: "fallback2",
     slug: "purple-sequence-lehenga",
     name: "Purple Sequence Thread Embroidery Lehenga",
-    description: "Elegant purple lehenga with beautiful sequence and thread embroidery",
+    description:
+      "Elegant purple lehenga with beautiful sequence and thread embroidery",
     images: ["/shopbycategory2.webp"],
     price: 4299,
     total_price: 5000,
@@ -100,112 +102,136 @@ const fallbackProducts: ProductData[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
-]
+];
 
 const roundTotalPrice = (price: number): number => {
-  if (!price) return 0
+  if (!price) return 0;
 
   if (price % 1 === 0) {
-    return Math.floor(price)
+    return Math.floor(price);
   }
 
-  return Math.ceil(price)
-}
+  return Math.ceil(price);
+};
 
 export default function CategoryProductsPage() {
-  const params = useParams()
-  const categorySlug = params.slug as string
+  const params = useParams();
+  const categorySlug = params.slug as string;
 
-  const [products, setProducts] = useState<(IProduct | ProductData)[]>([])
-  const [categoryName, setCategoryName] = useState("Category")
-  const [isLoading, setIsLoading] = useState(true)
-  const [columns, setColumns] = useState(4)
-  const [sortBy, setSortBy] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [isAddingToCart, setIsAddingToCart] = useState<{ [key: string]: boolean }>({})
+  const [products, setProducts] = useState<(IProduct | ProductData)[]>([]);
+  const [categoryName, setCategoryName] = useState("Category");
+  const [isLoading, setIsLoading] = useState(true);
+  const [columns, setColumns] = useState(4);
+  const [sortBy, setSortBy] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isAddingToCart, setIsAddingToCart] = useState<{
+    [key: string]: boolean;
+  }>({});
 
-  const { addToCart } = useCart()
-  const { toast } = useToast()
+  const { addToCart } = useCart();
+  const { toast } = useToast();
 
-  const isBlouseCategory = categorySlug?.toLowerCase() === "blouse" || categoryName?.toLowerCase() === "blouse"
-
+  
   useEffect(() => {
     const fetchCategoryProducts = async () => {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
       try {
-        const res = await fetch(`/api/category/${categorySlug}`)
+        const res = await fetch(`/api/category/${categorySlug}`);
 
         if (!res.ok) {
-          throw new Error(`Failed to fetch products for category: ${res.status}`)
+          throw new Error(
+            `Failed to fetch products for category: ${res.status}`
+          );
         }
 
-        const data = await res.json()
+        const data = await res.json();
 
         if (data.products && Array.isArray(data.products)) {
-          setProducts(data.products)
-          setCategoryName(data.categoryName || categorySlug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()))
+          setProducts(data.products);
+          setCategoryName(
+            data.categoryName ||
+              categorySlug
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase())
+          );
         } else {
-          console.error("Invalid data structure:", data)
-          setError("Invalid data received from server")
-          setProducts(fallbackProducts)
-          setCategoryName(categorySlug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()))
+          console.error("Invalid data structure:", data);
+          setError("Invalid data received from server");
+          setProducts(fallbackProducts);
+          setCategoryName(
+            categorySlug
+              .replace(/-/g, " ")
+              .replace(/\b\w/g, (l) => l.toUpperCase())
+          );
         }
       } catch (error) {
-        console.error("Failed to fetch products for category:", error)
-        setError("Failed to load products for this category. Using fallback data.")
-        setProducts(fallbackProducts)
-        setCategoryName(categorySlug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()))
+        console.error("Failed to fetch products for category:", error);
+        setError(
+          "Failed to load products for this category. Using fallback data."
+        );
+        setProducts(fallbackProducts);
+        setCategoryName(
+          categorySlug
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase())
+        );
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
-    fetchCategoryProducts()
-  }, [categorySlug])
+    };
+    fetchCategoryProducts();
+  }, [categorySlug]);
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value
-    setSortBy(value)
+    const value = e.target.value;
+    setSortBy(value);
 
-    const sortedProducts = [...products]
+    const sortedProducts = [...products];
     if (value === "lowToHigh") {
       sortedProducts.sort((a, b) => {
-        const priceA = a.total_price || a.price
-        const priceB = b.total_price || b.price
-        return priceA - priceB
-      })
+        const priceA = a.total_price || a.price;
+        const priceB = b.total_price || b.price;
+        return priceA - priceB;
+      });
     } else if (value === "highToLow") {
       sortedProducts.sort((a, b) => {
-        const priceA = a.total_price || a.price
-        const priceB = b.total_price || b.price
-        return priceB - priceA
-      })
+        const priceA = a.total_price || a.price;
+        const priceB = b.total_price || b.price;
+        return priceB - priceA;
+      });
     }
-    setProducts(sortedProducts)
-  }
+    setProducts(sortedProducts);
+  };
 
-  const handleAddToCart = async (e: React.MouseEvent, product: IProduct | ProductData) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleAddToCart = async (
+    e: React.MouseEvent,
+    product: IProduct | ProductData
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-    const defaultVariation = product.variations && product.variations.length > 0 ? product.variations[0] : null
-    const currentStock = defaultVariation?.stock || 0
+    const defaultVariation =
+      product.variations && product.variations.length > 0
+        ? product.variations[0]
+        : null;
+    const currentStock = defaultVariation?.stock || 0;
 
     if (currentStock <= 0) {
       toast({
         title: "Out of Stock",
         description: "This product is currently out of stock",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsAddingToCart((prev) => ({ ...prev, [String(product._id)]: true }))
+    setIsAddingToCart((prev) => ({ ...prev, [String(product._id)]: true }));
 
     try {
-      const selectedSize = defaultVariation?.size || "N/A"
-      const selectedColor = defaultVariation?.color || "N/A"
-      const priceModifier = defaultVariation?.price_modifier || 0
+      const selectedSize = defaultVariation?.size || "N/A";
+      const selectedColor = defaultVariation?.color || "N/A";
+      const priceModifier = defaultVariation?.price_modifier || 0;
 
       const productForCart = {
         _id: String(product._id),
@@ -220,47 +246,53 @@ export default function CategoryProductsPage() {
         selectedSize,
         selectedColor,
         stock: currentStock,
-      }
+      };
 
-      await addToCart(productForCart)
+      await addToCart(productForCart);
 
       toast({
         title: "Added to cart!",
         description: `${product.name} has been added to your cart`,
-      })
+      });
     } catch (error) {
-      console.error("Error adding to cart:", error)
+      console.error("Error adding to cart:", error);
       toast({
         title: "Error",
         description: "Failed to add product to cart. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsAddingToCart((prev) => ({ ...prev, [String(product._id)]: false }))
+      setIsAddingToCart((prev) => ({ ...prev, [String(product._id)]: false }));
     }
-  }
+  };
 
-  const displayProducts = products.length > 0 ? products : fallbackProducts
+  const displayProducts = products.length > 0 ? products : fallbackProducts;
 
   if (isLoading) {
     return (
       <div className="bg-gray-50 min-h-screen">
         <div className="text-center py-6 md:py-10 px-4">
-          <h1 className="text-2xl md:text-4xl font-bold text-black">{categoryName} Collection</h1>
-          <p className="text-sm md:text-base text-gray-600 mt-2">Loading products for {categoryName}...</p>
+          <h1 className="text-2xl md:text-4xl font-bold text-black">
+            {categoryName} Collection
+          </h1>
+          <p className="text-sm md:text-base text-gray-600 mt-2">
+            Loading products for {categoryName}...
+          </p>
         </div>
         <div className="flex flex-col items-center justify-center py-12">
           <RefreshCw className="h-8 w-8 animate-spin text-gray-500" />
           <p className="mt-4 text-gray-500">Loading products...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="text-center py-6 md:py-10 px-4">
-        <h1 className="text-2xl md:text-4xl font-bold text-black">{categoryName} Collection</h1>
+        <h1 className="text-2xl md:text-4xl font-bold text-black">
+          {categoryName} Collection
+        </h1>
         <p className="text-sm md:text-base text-gray-600 mt-2">
           Explore our exquisite collection of {categoryName.toLowerCase()}
         </p>
@@ -277,7 +309,9 @@ export default function CategoryProductsPage() {
               {[1, 2, 3, 4].map((col) => (
                 <button
                   key={col}
-                  className={`border px-3 py-2 rounded text-sm ${columns === col ? "bg-gray-300" : "bg-white"}`}
+                  className={`border px-3 py-2 rounded text-sm ${
+                    columns === col ? "bg-gray-300" : "bg-white"
+                  }`}
                   onClick={() => setColumns(col)}
                   aria-label={`Show ${col} column${col > 1 ? "s" : ""}`}
                 >
@@ -311,29 +345,29 @@ export default function CategoryProductsPage() {
             columns === 1
               ? "grid-cols-1"
               : columns === 2
-                ? "grid-cols-1 sm:grid-cols-2"
-                : columns === 3
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                  : "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              ? "grid-cols-1 sm:grid-cols-2"
+              : columns === 3
+              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              : "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           }`}
         >
           {displayProducts.map((product) => (
             <div
               key={String(product._id)}
-              className="bg-white rounded shadow hover:shadow-lg transition text-black group"
+              className=" rounded  transition text-black group"
             >
-              <div className="relative overflow-hidden">
+              <div className="relative overflow-hidden bg-white rounded shadow hover:shadow-md transition-shadow">
                 <Link href={`/products/${product.slug}`}>
-                  <div
-                    className={`relative w-full ${
-                      isBlouseCategory ? "aspect-square" : "h-[300px] sm:h-[400px] md:h-[500px]"
-                    }`}
-                  >
+                  <div className="relative w-full bg-white rounded shadow hover:shadow-md transition-shadow">
                     <Image
-                      src={getImageUrl(product.images[0] || "") || "/placeholder.svg"}
+                      src={
+                        getImageUrl(product.images[0] || "") ||
+                        "/placeholder.svg"
+                      }
                       alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform"
+                      width={600}
+                      height={600}
+                      className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                 </Link>
@@ -356,9 +390,11 @@ export default function CategoryProductsPage() {
                 <div className="absolute top-12 sm:top-14 right-2 z-10">
                   {(() => {
                     const defaultVariation =
-                      product.variations && product.variations.length > 0 ? product.variations[0] : null
-                    const currentStock = defaultVariation?.stock || 0
-                    const isOutOfStock = currentStock <= 0
+                      product.variations && product.variations.length > 0
+                        ? product.variations[0]
+                        : null;
+                    const currentStock = defaultVariation?.stock || 0;
+                    const isOutOfStock = currentStock <= 0;
 
                     return (
                       <Button
@@ -370,19 +406,27 @@ export default function CategoryProductsPage() {
                             : "bg-gray-100 hover:bg-white"
                         }`}
                         onClick={(e) => {
-                          e.preventDefault()
-                          handleAddToCart(e, product)
+                          e.preventDefault();
+                          handleAddToCart(e, product);
                         }}
-                        disabled={isAddingToCart[String(product._id)] || isOutOfStock}
+                        disabled={
+                          isAddingToCart[String(product._id)] || isOutOfStock
+                        }
                       >
                         {isAddingToCart[String(product._id)] ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-800"></div>
                         ) : (
-                          <ShoppingBag className={`w-4 h-4 ${isOutOfStock ? "text-gray-500" : ""}`} />
+                          <ShoppingBag
+                            className={`w-4 h-4 ${
+                              isOutOfStock ? "text-gray-500" : ""
+                            }`}
+                          />
                         )}
-                        <span className="sr-only">{isOutOfStock ? "Out of Stock" : "Add to Cart"}</span>
+                        <span className="sr-only">
+                          {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                        </span>
                       </Button>
-                    )
+                    );
                   })()}
                 </div>
                 {product.discount && (
@@ -392,15 +436,21 @@ export default function CategoryProductsPage() {
                 )}
               </div>
               <Link href={`/products/${product.slug}`}>
-                <div className="p-3 md:p-4">
+                <div className="p-3 md:p-4 bg-white rounded shadow hover:shadow-md transition-shadow">
                   <div className="flex items-center mb-2 text-orange-400">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.rating || 0) ? "fill-current" : "text-orange-300"}`}
+                        className={`w-3 h-3 sm:w-4 sm:h-4 ${
+                          i < Math.floor(product.rating || 0)
+                            ? "fill-current"
+                            : "text-orange-300"
+                        }`}
                       />
                     ))}
-                    <span className="ml-1 text-xs sm:text-sm text-gray-600">({product.rating || 0})</span>
+                    <span className="ml-1 text-xs sm:text-sm text-gray-600">
+                      ({product.rating || 0})
+                    </span>
                   </div>
 
                   <Link href={`/products/${product.slug}`} className="block">
@@ -416,15 +466,23 @@ export default function CategoryProductsPage() {
                       </span>
                     )}
                     <span className="text-red-600 font-bold text-xs sm:text-sm">
-                      Rs. {roundTotalPrice(product.total_price || product.price).toFixed(2)}
+                      Rs.{" "}
+                      {roundTotalPrice(
+                        product.total_price || product.price
+                      ).toFixed(2)}
                     </span>
                   </div>
 
                   <div className="text-xs text-gray-600 py-2 md:py-3">
                     {(() => {
                       const totalStock =
-                        product.variations?.reduce((sum, variation) => sum + (variation.stock || 0), 0) || 0
-                      return totalStock > 0 ? `${totalStock} items in stock` : "Out of stock"
+                        product.variations?.reduce(
+                          (sum, variation) => sum + (variation.stock || 0),
+                          0
+                        ) || 0;
+                      return totalStock > 0
+                        ? `${totalStock} items in stock`
+                        : "Out of stock";
                     })()}
                   </div>
                 </div>
@@ -435,5 +493,5 @@ export default function CategoryProductsPage() {
       </div>
       <div className="h-10 md:h-16"></div>
     </div>
-  )
+  );
 }

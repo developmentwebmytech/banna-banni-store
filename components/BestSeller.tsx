@@ -374,7 +374,7 @@ export default function BestSeller() {
                   href={`/products/${product.slug}`}
                   className="block relative overflow-hidden"
                 >
-                  <div className="relative">
+                  <div className="relative w-full">
                     <Image
                       src={getImageUrl(
                         product.images[currentIndex] || product.images[0] || ""
@@ -382,7 +382,7 @@ export default function BestSeller() {
                       alt={product.name}
                       width={600}
                       height={600}
-                      className="w-full h-[600px] object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = `/placeholder.svg?height=600&width=600&query=${encodeURIComponent(
