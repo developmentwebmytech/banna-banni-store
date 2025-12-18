@@ -244,7 +244,7 @@ export default function NewArrival() {
   }
 
   return (
-    <section className="bg-white py-1 px-4 sm:px-8 lg:px-16">
+    <section className="bg-white py-6 px-4 sm:px-8 lg:px-16">
       <div className="text-center px-4">
         <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900">
           New Arrival
@@ -522,7 +522,7 @@ export default function NewArrival() {
           </svg>
         </div>
 
-        <div className="swiper-pagination-newarrival flex justify-center mt-6 gap-2"></div>
+        <div className="swiper-pagination-newarrival flex justify-center mt-9 pt-2  gap-2"></div>
 
         <style jsx>{`
           .newarrival-swiper .swiper-pagination-bullet {

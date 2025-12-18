@@ -198,7 +198,7 @@ export default function HeaderCategoryPage() {
               </svg>
             </div>
 
-            <div className="swiper-pagination-category flex justify-center mt-8 space-x-2"></div>
+            <div className="swiper-pagination-category flex justify-center mt-10 pt-2 space-x-2"></div>
 
             <style jsx>{`
               .category-swiper .swiper-pagination-bullet {
