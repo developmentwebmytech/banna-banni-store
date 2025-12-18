@@ -277,7 +277,7 @@ export default function BestSeller() {
   };
 
   return (
-    <section className="bg-white  mt-4 py-18 px-4 sm:px-8 lg:px-16">
+    <section className="bg-white  mt-2 py-16 px-4 sm:px-8 lg:px-16">
       <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900">
         Best Seller
       </h2>
